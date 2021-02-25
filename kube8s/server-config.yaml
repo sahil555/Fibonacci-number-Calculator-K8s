@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      backend: service
+  
+  template:
+    metadata:
+      labels:
+        backend: service
+        
+    
+    spec:
+      containers:
+        - name: server
+          image: sahil555k/backend:v1
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: '6379'
+            - name: PGUSER
+              value: postgres
+            - name: PGHOST
+              value: postgres-cluster-ip-service
+            - name: PGPORT
+              value: '5432'
+            - name: PGDATABASE
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres_password
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-cluster-ip-service
+
+spec:
+  type: ClusterIP
+  selector:
+    backend: service
+  ports:
+    - port: 5000
+      targetPort: 5000
